@@ -1,0 +1,98 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
+from sklearn.decomposition import PCA 
+import seaborn as sns
+
+def getMode(x):
+    mode = stats.mode(x)
+    return mode
+
+def getMean(x):
+    mean = np.mean(x)
+    return mean
+
+def getMedian(x):
+    median = np.median(x)
+    return median
+
+def getMad(x):
+    mad = stats.median_absolute_deviation(x)
+    return mad
+
+print('This csv file describes passengers onboard a train called "Titanic". ')
+print('The data includes all data of the passengers, including: Age, Sex, Fare, ID, and if a survivor lived the crash.')
+print('Number of rows: 892')
+print('Number of columns: 12')
+df = pd.read_csv('train.csv')
+
+#Replace all NaN values with 25
+df = df.replace(np.nan, 25)
+
+print(df.head(10))
+
+mean = getMean(df['Age'])
+median = getMedian(df['Fare'])
+mode = getMode(df['Pclass'])
+mad = getMad(df['Age'])
+
+myData = [mean,median,mode,mad]
+print(myData)
+
+pca = PCA(n_components=1)
+pca.fit(df[['Age']])
+
+print(pca.explained_variance_ratio_)
+
+plt.xlabel('Passenger Classes')
+plt.ylabel('Monay paid for Class')
+plt.title('The amount of money paid for titanic classes')
+plt.scatter(df['Pclass'],df['Fare'])
+#Most people paid for P class 1, a few even paid a lot for it
+
+plt.xlabel("Age")
+plt.ylabel("Amount paid")
+plt.title("Age distribution of passengers")
+plt.hist(df['Age'],bins=20)
+#Those in their mid 20s - early 30s paid the most for tickets, displayed as a histogram
+
+plt.title('Distrubtion of ages')
+sns.boxplot(x=df["Age"])
+#Those in their mid 20s - early 30s paid the most for tickets, displayed as a boxplot
+
+plt.title('Distribution of fares')
+sns.boxplot(x=df["Fare"])
+#Most people paid a small amount of money for tickets
+
+x = df['Fare']
+plt.title('Univariate distribution of fares')
+sns.distplot(x)
+
+x1 = df[df.Sex=='male']
+y1 = df[df.Age < 36]
+x1 = x1.replace(np.nan, 25)
+y1 = y1.replace(np.nan, 25)
+plt.title("Age distribution of all male passengers under 36 years old")
+sns.boxplot(x = x1['Sex'], y = y1['Age'], data = x1) 
+#Boxplot of all male passengers under the age of 36
+
+x1 = df[df.Sex=='female']
+y1 = df[df.Fare < 60]
+x1 = x1.replace(np.nan, 25)
+y1 = y1.replace(np.nan, 25)
+plt.title("Distribution of all female passengers who paid less than 60 dollars")
+sns.boxplot(x = x1['Sex'], y = y1['Fare'], data = x1) 
+#Boxplot of all female passengers who paid less than 60 dollars
+
+x1 = df[df.Survived == 1]
+plt.xlabel('Age')
+plt.ylabel('Fare')
+plt.title('Amount of money survivors paid for fare for train ride')
+plt.scatter(x1['Age'],x1['Fare'])
+#Scatter plot of the amount of money survivors paid to take the train ride
+
+x = df[df.Pclass == 2]
+plt.title('Univariate distribution of ages in second class')
+sns.distplot(x['Age'])
+#Univariate distribution of ages of passengers in second class
